@@ -12,15 +12,17 @@ public class LoginResponse {
 
     private String fullName;
 
-    public LoginResponse() {
-    }
+    private String token;
+
+
 
     public LoginResponse(
             boolean success,
             String message,
             Long userId,
             String username,
-            String fullName
+            String fullName,
+            String token
     ) {
 
         this.success = success;
@@ -28,6 +30,18 @@ public class LoginResponse {
         this.userId = userId;
         this.username = username;
         this.fullName = fullName;
+        this.token = token;
+
+    }
+    public String getToken() {
+
+        return token;
+
+    }
+
+    public void setToken(String token) {
+
+        this.token = token;
 
     }
 

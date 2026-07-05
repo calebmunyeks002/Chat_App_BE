@@ -4,6 +4,7 @@ import com.finchat.backend.dto.LoginRequest;
 import com.finchat.backend.dto.LoginResponse;
 import com.finchat.backend.entity.User;
 import com.finchat.backend.repository.UserRepository;
+import com.finchat.backend.security.JwtService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,14 +16,16 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     public UserService(
             UserRepository userRepository,
-            BCryptPasswordEncoder passwordEncoder) {
-
+            BCryptPasswordEncoder passwordEncoder,
+            JwtService jwtService
+    ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-
+        this.jwtService = jwtService;
     }
 
     public List<User> getAllUsers() {
@@ -55,11 +58,8 @@ public class UserService {
             throw new RuntimeException("Username already exists");
         }
 
-        user.setPassword(
-
-                passwordEncoder.encode(user.getPassword())
-
-        );
+        // Encrypt the password before saving
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         return userRepository.save(user);
     }
@@ -71,67 +71,44 @@ public class UserService {
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
     }
+
     public LoginResponse login(LoginRequest request) {
 
-        Optional<User> optionalUser =
-                userRepository.findByEmail(request.getEmail());
+        Optional<User> optionalUser = userRepository.findByEmail(request.getEmail());
 
         if (optionalUser.isEmpty()) {
-
             return new LoginResponse(
-
                     false,
-
                     "User not found.",
-
                     null,
-
                     null,
-
+                    null,
                     null
-
             );
-
         }
 
         User user = optionalUser.get();
 
-        if (!passwordEncoder.matches(
-
-                request.getPassword(),
-
-                user.getPassword()
-
-        )) {
-
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             return new LoginResponse(
-
                     false,
-
                     "Invalid password.",
-
                     null,
-
                     null,
-
+                    null,
                     null
-
             );
-
         }
+
+        String token = jwtService.generateToken(user.getUsername());
+
         return new LoginResponse(
-
                 true,
-
                 "Login successful.",
-
                 user.getId(),
-
                 user.getUsername(),
-
-                user.getFullName()
-
+                user.getFullName(),
+                token
         );
-
     }
 }
