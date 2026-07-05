@@ -1,10 +1,12 @@
 package com.finchat.backend.controller;
-
+import com.finchat.backend.dto.LoginRequest;
+import com.finchat.backend.dto.LoginResponse;
 import com.finchat.backend.entity.User;
 import com.finchat.backend.service.UserService;
-
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +29,23 @@ public class UserController {
         return userService.getAllUsers();
 
     }
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(
+            @RequestBody LoginRequest request) {
+
+        LoginResponse response =
+                userService.login(request);
+
+        if (response.isSuccess()) {
+
+            return ResponseEntity.ok(response);
+
+        }
+
+        return ResponseEntity.status(401).body(response);
+
+    }
+
 
     @GetMapping("/{id}")
     public Optional<User> getUser(
@@ -37,13 +56,26 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public User register(
-            @RequestBody User user){
+    public ResponseEntity<?> register(@RequestBody User user) {
 
-        return userService.registerUser(user);
+        try {
+
+            User savedUser = userService.registerUser(user);
+
+            return ResponseEntity.ok(savedUser);
+
+        } catch (RuntimeException e) {
+
+            return ResponseEntity.badRequest().body(
+                    java.util.Map.of(
+                            "message",
+                            e.getMessage()
+                    )
+            );
+
+        }
 
     }
-
     @PutMapping("/{id}")
     public User updateUser(
             @PathVariable Long id,
@@ -62,5 +94,6 @@ public class UserController {
         userService.deleteUser(id);
 
     }
+
 
 }
