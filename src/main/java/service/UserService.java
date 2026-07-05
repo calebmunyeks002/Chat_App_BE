@@ -73,7 +73,8 @@ public class UserService {
     }
 
     public LoginResponse login(LoginRequest request) {
-
+        System.out.println("Email: " + request.getEmail());
+        System.out.println("Password: " + request.getPassword());
         Optional<User> optionalUser = userRepository.findByEmail(request.getEmail());
 
         if (optionalUser.isEmpty()) {
