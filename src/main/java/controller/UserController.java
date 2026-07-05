@@ -2,9 +2,12 @@ package com.finchat.backend.controller;
 
 import com.finchat.backend.entity.User;
 import com.finchat.backend.service.UserService;
-
+import com.finchat.backend.dto.LoginRequest;
+import com.finchat.backend.dto.LoginResponse;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,6 +28,24 @@ public class UserController {
     public List<User> getUsers(){
 
         return userService.getAllUsers();
+
+    }
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponse> login(
+            @RequestBody LoginRequest request) {
+
+        LoginResponse response =
+                userService.login(request);
+
+        if (response.isSuccess()) {
+
+            return ResponseEntity.ok(response);
+
+        }
+
+        return ResponseEntity
+                .status(401)
+                .body(response);
 
     }
 
