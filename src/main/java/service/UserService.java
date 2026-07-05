@@ -4,7 +4,7 @@ import com.finchat.backend.dto.LoginRequest;
 import com.finchat.backend.dto.LoginResponse;
 import com.finchat.backend.entity.User;
 import com.finchat.backend.repository.UserRepository;
-
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,9 +14,15 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(
+            UserRepository userRepository,
+            BCryptPasswordEncoder passwordEncoder) {
+
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+
     }
 
     public List<User> getAllUsers() {
@@ -48,6 +54,12 @@ public class UserService {
         if (usernameExists(user.getUsername())) {
             throw new RuntimeException("Username already exists");
         }
+
+        user.setPassword(
+
+                passwordEncoder.encode(user.getPassword())
+
+        );
 
         return userRepository.save(user);
     }
@@ -84,7 +96,13 @@ public class UserService {
 
         User user = optionalUser.get();
 
-        if (!user.getPassword().equals(request.getPassword())) {
+        if (!passwordEncoder.matches(
+
+                request.getPassword(),
+
+                user.getPassword()
+
+        )) {
 
             return new LoginResponse(
 
@@ -101,7 +119,6 @@ public class UserService {
             );
 
         }
-
         return new LoginResponse(
 
                 true,

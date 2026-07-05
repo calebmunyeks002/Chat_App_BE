@@ -1,9 +1,8 @@
 package com.finchat.backend.controller;
-
-import com.finchat.backend.entity.User;
-import com.finchat.backend.service.UserService;
 import com.finchat.backend.dto.LoginRequest;
 import com.finchat.backend.dto.LoginResponse;
+import com.finchat.backend.entity.User;
+import com.finchat.backend.service.UserService;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -49,6 +48,7 @@ public class UserController {
 
     }
 
+
     @GetMapping("/{id}")
     public Optional<User> getUser(
             @PathVariable Long id){
@@ -83,5 +83,6 @@ public class UserController {
         userService.deleteUser(id);
 
     }
+
 
 }
