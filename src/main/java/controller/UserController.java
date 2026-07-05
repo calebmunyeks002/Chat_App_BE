@@ -42,9 +42,7 @@ public class UserController {
 
         }
 
-        return ResponseEntity
-                .status(401)
-                .body(response);
+        return ResponseEntity.status(401).body(response);
 
     }
 
@@ -58,13 +56,26 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public User register(
-            @RequestBody User user){
+    public ResponseEntity<?> register(@RequestBody User user) {
 
-        return userService.registerUser(user);
+        try {
+
+            User savedUser = userService.registerUser(user);
+
+            return ResponseEntity.ok(savedUser);
+
+        } catch (RuntimeException e) {
+
+            return ResponseEntity.badRequest().body(
+                    java.util.Map.of(
+                            "message",
+                            e.getMessage()
+                    )
+            );
+
+        }
 
     }
-
     @PutMapping("/{id}")
     public User updateUser(
             @PathVariable Long id,

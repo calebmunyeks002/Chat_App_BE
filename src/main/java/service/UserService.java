@@ -7,7 +7,7 @@ import com.finchat.backend.repository.UserRepository;
 import com.finchat.backend.security.JwtService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -58,8 +58,14 @@ public class UserService {
             throw new RuntimeException("Username already exists");
         }
 
-        // Encrypt the password before saving
+        // Encrypt password
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+
+        // Set creation time
+        user.setCreatedAt(LocalDateTime.now());
+
+        // User is online immediately after registration
+        user.setOnline(true);
 
         return userRepository.save(user);
     }
@@ -87,6 +93,15 @@ public class UserService {
                     null
             );
         }
+//public LoginResponse login(LoginRequest request) {
+//
+//    System.out.println("EMAIL RECEIVED = " + request.getEmail());
+//    System.out.println("PASSWORD RECEIVED = " + request.getPassword());
+//
+//    Optional<User> optionalUser =
+//            userRepository.findByEmail(request.getEmail());
+//
+//    System.out.println("USER FOUND = " + optionalUser.isPresent());
 
         User user = optionalUser.get();
 
