@@ -1,7 +1,10 @@
 package com.finchat.backend.service;
 
+import com.finchat.backend.dto.LoginRequest;
+import com.finchat.backend.dto.LoginResponse;
 import com.finchat.backend.entity.User;
 import com.finchat.backend.repository.UserRepository;
+
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -55,5 +58,63 @@ public class UserService {
 
     public void deleteUser(Long id) {
         userRepository.deleteById(id);
+    }
+    public LoginResponse login(LoginRequest request) {
+
+        Optional<User> optionalUser =
+                userRepository.findByEmail(request.getEmail());
+
+        if (optionalUser.isEmpty()) {
+
+            return new LoginResponse(
+
+                    false,
+
+                    "User not found.",
+
+                    null,
+
+                    null,
+
+                    null
+
+            );
+
+        }
+
+        User user = optionalUser.get();
+
+        if (!user.getPassword().equals(request.getPassword())) {
+
+            return new LoginResponse(
+
+                    false,
+
+                    "Invalid password.",
+
+                    null,
+
+                    null,
+
+                    null
+
+            );
+
+        }
+
+        return new LoginResponse(
+
+                true,
+
+                "Login successful.",
+
+                user.getId(),
+
+                user.getUsername(),
+
+                user.getFullName()
+
+        );
+
     }
 }
