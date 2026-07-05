@@ -21,15 +21,21 @@ public class JwtService {
     @Value("${jwt.expiration}")
     private long expiration;
 
+    // =====================================================
+    // SIGNING KEY
+    // =====================================================
+
     private Key getSigningKey() {
 
         return Keys.hmacShaKeyFor(
-
                 secret.getBytes()
-
         );
 
     }
+
+    // =====================================================
+    // GENERATE JWT TOKEN
+    // =====================================================
 
     public String generateToken(String username) {
 
@@ -44,7 +50,6 @@ public class JwtService {
                         new Date(
 
                                 System.currentTimeMillis()
-
                                         + expiration
 
                         )
@@ -63,6 +68,10 @@ public class JwtService {
 
     }
 
+    // =====================================================
+    // EXTRACT USERNAME
+    // =====================================================
+
     public String extractUsername(String token) {
 
         return extractClaim(
@@ -74,6 +83,10 @@ public class JwtService {
         );
 
     }
+
+    // =====================================================
+    // EXTRACT EXPIRATION
+    // =====================================================
 
     public Date extractExpiration(String token) {
 
@@ -87,6 +100,10 @@ public class JwtService {
 
     }
 
+    // =====================================================
+    // CHECK IF TOKEN IS EXPIRED
+    // =====================================================
+
     public boolean isTokenExpired(String token) {
 
         return extractExpiration(token)
@@ -94,6 +111,31 @@ public class JwtService {
                 .before(new Date());
 
     }
+
+    // =====================================================
+    // VALIDATE TOKEN (FOR FILTER)
+    // =====================================================
+
+    public boolean isTokenValid(String token) {
+
+        try {
+
+            return !isTokenExpired(token);
+
+        }
+
+        catch (Exception e) {
+
+            return false;
+
+        }
+
+    }
+
+    // =====================================================
+    // VALIDATE TOKEN AGAINST USERNAME
+    // (Used later with UserDetailsService)
+    // =====================================================
 
     public boolean isTokenValid(
 
@@ -115,6 +157,10 @@ public class JwtService {
 
     }
 
+    // =====================================================
+    // EXTRACT ANY CLAIM
+    // =====================================================
+
     public <T> T extractClaim(
 
             String token,
@@ -123,15 +169,23 @@ public class JwtService {
 
     ) {
 
-        final Claims claims = extractAllClaims(token);
+        final Claims claims =
+
+                extractAllClaims(token);
 
         return claimsResolver.apply(claims);
 
     }
 
+    // =====================================================
+    // EXTRACT ALL CLAIMS
+    // =====================================================
+
     private Claims extractAllClaims(String token) {
 
-        return Jwts.parserBuilder()
+        return Jwts
+
+                .parserBuilder()
 
                 .setSigningKey(
 
